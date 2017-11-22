@@ -17,55 +17,75 @@ import android.widget.TextView;
 
 public class FragmentB extends Fragment {
 
-    private TextView txvTexto;
+    private TextView txvMessage;
     private String message;
     private int size;
-
+    //private View rootView;  Caso mapas: contenedor de elementos con muchas imágenes
     @Override
     public void onAttach(Activity activity) {
         Log.d("FragmentB", "onAttach()");
         super.onAttach(activity);
     }
 
+    /**
+     * Para que el estado dinámico de un fragment sea permanente ante un cambio de configuración
+     * usar setRetainInstance();
+     * @param savedInstanceState
+     */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         Log.d("FragmentB", "onCreate()");
         super.onCreate(savedInstanceState);
+        setRetainInstance(true);
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Log.d("FragmentB", "onCreateView()");
-        View view = inflater.inflate(R.layout.fragmentb, container, false);
-        txvTexto = view.findViewById(R.id.txvTexto);
+        View view= inflater.inflate(R.layout.fragmentb, container, false);
+        txvMessage = view.findViewById(R.id.txvTexto);
         return view;
     }
 
     public void changeTextAndSize(String message, int size){
-        txvTexto.setText(message);
-        txvTexto.setTextSize(TypedValue.COMPLEX_UNIT_PX, size);
+        txvMessage.setText(message);
+        txvMessage.setTextSize(TypedValue.COMPLEX_UNIT_PX, size);
+        //txvMessage.setTextSize(size);
     }
 
-    @Override
+
+
+  @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         Log.d("FragmentB", "onViewCreated()");
         super.onViewCreated(view, savedInstanceState);
         Bundle bundle = getArguments();
-        if(bundle != null){
-            changeTextAndSize(bundle.getString("message"), bundle.getInt("size"));
+        if(savedInstanceState == null){ //No hay cambio de configuración Se ejecuta por primera vez
+            if(bundle != null) {
+                message = bundle.getString("message");
+                size = bundle.getInt("size");
+            }
         }
-
+        changeTextAndSize(message, size);
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         Log.d("FragmentB", "onActivityCreated()");
         super.onActivityCreated(savedInstanceState);
-        if(savedInstanceState != null){
+        /*if(savedInstanceState != null){
+            Log.d("FragmentB", "savedInstance onActivityCreated()");
             changeTextAndSize(savedInstanceState.getString("message"), savedInstanceState.getInt("size"));
-        }
+        }*/
     }
+        /*@Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("message", txvMessage.getText().toString());
+        outState.putFloat("size", txvMessage.getTextSize());
+        //outState.putFloat("size", txvMessage.getTextSize()/(getResources().getDisplayMetrics()).density);
+    }*/
 
     @Override
     public void onStart() {
@@ -109,11 +129,18 @@ public class FragmentB extends Fragment {
         super.onDetach();
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putString("message", txvTexto.getText().toString());
-        outState.putFloat("size", txvTexto.getTextSize());
-    }
 
+
+    /**
+     * PATRÓN FACTORY que es una simplificación del patrón BUILDER
+     * @param bundle
+     * @return
+     */
+    public static Fragment newInstance(Bundle bundle) {
+        FragmentB fragmentB = new FragmentB();
+        if(bundle != null){
+            fragmentB.setArguments(bundle);
+        }
+        return fragmentB;
+    }
 }

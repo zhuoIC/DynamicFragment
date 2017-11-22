@@ -46,6 +46,7 @@ public class FragmentA extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         Log.d("FragmentA", "onCreate()");
         super.onCreate(savedInstanceState);
+        setRetainInstance(true);
     }
 
     @Nullable
